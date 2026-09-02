@@ -294,6 +294,8 @@
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
+  gap: 10px;
+  padding: 7px 12px;
 }
 
 .live-info .kind {
@@ -327,9 +329,9 @@
   border-radius: 6px;
   color: #fff;
   font-weight: 700;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.04em;
-  padding: 3px 7px;
+  padding: 6px 12px;
 }
 
 .live-toggle:hover {
