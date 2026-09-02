@@ -291,33 +291,58 @@
 }
 
 .live-info {
+  background: var(--accent);
   border-color: var(--accent);
+  color: #fff;
+}
+
+.live-info .kind {
+  color: #fff;
+}
+
+.live-info button {
+  color: #fff;
+}
+
+.live-info button:hover {
+  color: #fff;
+  opacity: 0.75;
 }
 
 .live-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--accent);
+  background: #fff;
   flex-shrink: 0;
   animation: pulse 1.2s infinite;
 }
 
+/* Off state mirrors .load-btn's solid black pill so it stays legible on the
+   solid-orange live chip instead of blending into it. */
 .live-toggle {
   flex-shrink: 0;
-  background: none;
-  border: 1px solid var(--panel-border);
+  background: #000;
+  border: 2px solid transparent;
   border-radius: 6px;
-  color: var(--text-dim);
+  color: #fff;
+  font-weight: 700;
   font-size: 9px;
   letter-spacing: 0.04em;
   padding: 3px 7px;
 }
 
+.live-toggle:hover {
+  background: #262626;
+}
+
 .live-toggle.on {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-dim);
+  background: #fff;
+  color: #000;
+}
+
+.live-toggle.on:hover {
+  background: #f1f1f1;
 }
 
 .live-error {
