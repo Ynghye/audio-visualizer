@@ -1,0 +1,40 @@
+:root {
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-alt: #f1f1f1;
+  --panel-border: #cacaca;
+  --text: #000000;
+  --text-dim: #6e6e6e;
+  --accent: #e8622c;
+  --accent-dim: #c74f1e;
+  --accent-soft: rgba(232, 98, 44, 0.12);
+  --danger: #d9534f;
+  color-scheme: light;
+  font-family: "SF Mono", "IBM Plex Mono", ui-monospace, "Menlo", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
