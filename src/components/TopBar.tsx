@@ -93,10 +93,12 @@ export function TopBar({
       </div>
 
       <div className="topbar-media-row">
-        <button className={`load-btn ${dragActive ? "drag-active" : ""}`} onClick={() => inputRef.current?.click()}>
-          <span className="load-btn-icon">+</span>
-          {dragActive ? "Add file" : media ? "Replace Media" : "Load Audio / Video / Photo"}
-        </button>
+        {!liveSession && (
+          <button className={`load-btn ${dragActive ? "drag-active" : ""}`} onClick={() => inputRef.current?.click()}>
+            <span className="load-btn-icon">+</span>
+            {dragActive ? "Add file" : media ? "Replace Media" : "Load Audio / Video / Photo"}
+          </button>
+        )}
         <input
           ref={inputRef}
           type="file"
@@ -157,8 +159,9 @@ export function TopBar({
               <button onClick={onClearSecondaryAudio}>×</button>
             </div>
           ) : (
-            <button className="add-secondary-btn" onClick={onAddSecondaryAudio}>
-              + Add Audio
+            <button className="load-btn add-secondary-btn" onClick={onAddSecondaryAudio}>
+              <span className="load-btn-icon">+</span>
+              Add Audio Source
             </button>
           ))}
 
@@ -169,8 +172,9 @@ export function TopBar({
               <button onClick={onClearSecondaryVisual}>×</button>
             </div>
           ) : (
-            <button className="add-secondary-btn" onClick={onAddSecondaryVisual}>
-              + Add Image / Video
+            <button className="load-btn add-secondary-btn" onClick={onAddSecondaryVisual}>
+              <span className="load-btn-icon">+</span>
+              Add Image Source
             </button>
           ))}
       </div>

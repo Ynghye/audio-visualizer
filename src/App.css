@@ -273,22 +273,9 @@
   white-space: nowrap;
 }
 
-.add-secondary-btn {
-  flex-shrink: 0;
-  white-space: nowrap;
-  padding: 8px 14px;
-  background: transparent;
-  border: 1px dashed var(--panel-border);
-  border-radius: 6px;
-  color: var(--text-dim);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-}
-
-.add-secondary-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+/* .add-secondary-btn is combined with .load-btn for the same solid-black
+   look — Add Audio/Image Source buttons need to read as clearly as Load
+   Media and Live Session, not fade into the background like a ghost button. */
 
 .live-info {
   background: var(--accent);
@@ -331,7 +318,7 @@
   font-weight: 700;
   font-size: 10px;
   letter-spacing: 0.04em;
-  padding: 6px 12px;
+  padding: 8px 20px;
 }
 
 .live-toggle:hover {
