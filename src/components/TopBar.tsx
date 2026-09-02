@@ -122,8 +122,9 @@ export function TopBar({
             <button onClick={onStopLiveSession}>×</button>
           </div>
         ) : (
-          <button className="add-secondary-btn" onClick={onStartLiveSession}>
-            + Live Session
+          <button className="load-btn live-start-btn" onClick={onStartLiveSession}>
+            <span className="load-btn-icon">+</span>
+            Live Session
           </button>
         )}
         {liveError && <span className="live-error">{liveError}</span>}
