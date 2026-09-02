@@ -35,9 +35,15 @@ export default function App() {
   const [media, setMedia] = useState<LoadedMedia | null>(null);
   const [secondaryAudio, setSecondaryAudio] = useState<SecondaryAudio | null>(null);
   const [chain, setChain] = useState<ChainEntry[]>(() => {
-    const entry = makeEntry("burkes");
-    entry.audioLinks = { levels: "level" };
-    return [entry];
+    const dither = makeEntry("burkes");
+    dither.audioLinks = { levels: "level" };
+    // Levels only steps through 2-8 integers, so quiet/typical audio often rounds to
+    // the same frame as silence. Grain amount is continuous and reads clearly even for
+    // small swings, so it's the entry that actually makes the reaction visible.
+    const grain = makeEntry("filmGrain");
+    grain.values = { ...grain.values, amount: 10 };
+    grain.audioLinks = { amount: "level" };
+    return [dither, grain];
   });
   const [activeEntryId, setActiveEntryId] = useState<string | null>(() => chain[0]?.id ?? null);
   const [browserTarget, setBrowserTarget] = useState<BrowserTarget | null>(null);
@@ -61,10 +67,11 @@ export default function App() {
 
   const activeAudioEl = media?.audioEl ?? secondaryAudio?.el ?? null;
 
-  // The top bar wraps onto a second row on narrow windows / with many media chips,
-  // so its height isn't fixed — measure it live and offset the panel/badge below it.
+  // The top bar's media-row wraps onto a second line on narrow windows / with many
+  // media chips, so its height isn't fixed — measure the whole two-row container live
+  // and offset the panel/badge below it.
   useEffect(() => {
-    const el = document.querySelector(".topbar-pill");
+    const el = document.querySelector(".topbar");
     if (!el) return;
     // Read getBoundingClientRect rather than the ResizeObserver entry's contentRect —
     // contentRect excludes padding/border, understating the space the pill actually occupies.

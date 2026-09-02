@@ -89,7 +89,16 @@ export class AudioEngine {
     bass = bass / bassEnd / 255;
     mid = mid / (midEnd - bassEnd) / 255;
     treble = treble / (n - midEnd) / 255;
-    const level = (bass + mid + treble) / 3;
+
+    // Real audio rarely fills every bin in a band at once — a wide bass/mid/treble
+    // range averaged linearly comes out well under 0.5 even for loud, present sound,
+    // which left band-linked parameters clamped at their base value. Boost + clamp so
+    // typical music actually swings through the usable 0..1 range.
+    const BOOST = 3.2;
+    bass = Math.min(1, bass * BOOST);
+    mid = Math.min(1, mid * BOOST);
+    treble = Math.min(1, treble * BOOST);
+    const level = Math.min(1, ((bass + mid + treble) / 3) * 1.1);
 
     return { bass, mid, treble, level };
   }

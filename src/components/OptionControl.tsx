@@ -10,7 +10,7 @@ interface OptionControlProps {
 }
 
 const BAND_CYCLE: (AudioBand | undefined)[] = [undefined, "bass", "mid", "treble", "level"];
-const BAND_LABEL: Record<AudioBand, string> = { bass: "B", mid: "M", treble: "T", level: "L" };
+const BAND_LABEL: Record<AudioBand, string> = { bass: "Bass", mid: "Mid", treble: "Treble", level: "Level" };
 
 export function OptionControl({ option, value, onChange, audioLink, onAudioLinkChange, hasAudio }: OptionControlProps) {
   const showAudioLink = option.type === "range" && hasAudio && onAudioLinkChange;
@@ -27,18 +27,7 @@ export function OptionControl({ option, value, onChange, audioLink, onAudioLinkC
       <div className="opt-row">
         <div className="opt-row-top">
           <span>{option.label}</span>
-          <span className="opt-row-right">
-            {showAudioLink && (
-              <button
-                className={`audio-link-btn ${audioLink ? "linked" : ""}`}
-                onClick={cycleAudioLink}
-                title={audioLink ? `Reacting to ${audioLink} — click to change` : "Click to react to audio"}
-              >
-                {audioLink ? BAND_LABEL[audioLink] : "♪"}
-              </button>
-            )}
-            <span className="opt-val">{num.toFixed(option.step && option.step < 1 ? 2 : 0)}</span>
-          </span>
+          <span className="opt-val">{num.toFixed(option.step && option.step < 1 ? 2 : 0)}</span>
         </div>
         <input
           type="range"
@@ -48,6 +37,12 @@ export function OptionControl({ option, value, onChange, audioLink, onAudioLinkC
           value={num}
           onChange={(e) => onChange(parseFloat(e.target.value))}
         />
+        {showAudioLink && (
+          <button className={`audio-link-row ${audioLink ? "linked" : ""}`} onClick={cycleAudioLink}>
+            <span className="audio-link-icon">♪</span>
+            {audioLink ? `Reacting to ${BAND_LABEL[audioLink]}` : "Link to audio"}
+          </button>
+        )}
       </div>
     );
   }

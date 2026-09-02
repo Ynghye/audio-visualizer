@@ -68,6 +68,12 @@ export function TopBar({
 
         <div className="topbar-divider" />
 
+        <div className="topbar-right">
+          <MediaTabs activeKind={media?.kind ?? null} />
+        </div>
+      </div>
+
+      <div className="topbar-media-row">
         <button className={`load-btn ${dragActive ? "drag-active" : ""}`} onClick={() => inputRef.current?.click()}>
           <span className="load-btn-icon">+</span>
           {dragActive ? "Add file" : media ? "Replace Media" : "Load Audio / Video / Photo"}
@@ -116,10 +122,6 @@ export function TopBar({
               + Add Audio
             </button>
           ))}
-
-        <div className="topbar-right">
-          <MediaTabs activeKind={media?.kind ?? null} />
-        </div>
       </div>
     </div>
   );
