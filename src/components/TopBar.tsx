@@ -81,7 +81,7 @@ export function TopBar({
         <input
           ref={inputRef}
           type="file"
-          accept="audio/*,video/*,image/*"
+          accept="audio/*,video/*,image/*,.mp3,.m4a,.wav,.aac,.flac,.ogg"
           hidden
           onChange={(e) => {
             const file = e.target.files?.[0];
