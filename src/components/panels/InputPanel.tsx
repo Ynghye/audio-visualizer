@@ -1,15 +1,18 @@
 import type { LoadedMedia } from "../../types";
-import type { SecondaryVisual } from "../../App";
+import type { LiveSession, SecondaryVisual } from "../../App";
 
 interface InputPanelProps {
   media: LoadedMedia | null;
   secondaryVisual: SecondaryVisual | null;
   onToggleSecondaryVisualMuted: () => void;
+  liveSession: LiveSession | null;
+  onToggleCamera: () => void;
+  onToggleMic: () => void;
   zoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onZoomReset: () => void;
-  hasAudio: boolean;
+  canAdjustVolume: boolean;
   volume: number;
   onVolumeChange: (v: number) => void;
 }
@@ -18,11 +21,14 @@ export function InputPanel({
   media,
   secondaryVisual,
   onToggleSecondaryVisualMuted,
+  liveSession,
+  onToggleCamera,
+  onToggleMic,
   zoom,
   onZoomIn,
   onZoomOut,
   onZoomReset,
-  hasAudio,
+  canAdjustVolume,
   volume,
   onVolumeChange,
 }: InputPanelProps) {
@@ -41,8 +47,35 @@ export function InputPanel({
             </span>
           )}
         </div>
+      ) : liveSession ? (
+        <div className="input-media-summary">
+          <span className="kind">live</span>
+          <span className="input-media-name">Camera + Mic session</span>
+          {liveSession.dimensions && (
+            <span className="dims">
+              {liveSession.dimensions.width}×{liveSession.dimensions.height}px
+            </span>
+          )}
+        </div>
       ) : (
         <div className="chain-options-empty">Use "Load Audio / Video / Photo" in the top bar to get started.</div>
+      )}
+
+      {liveSession && (
+        <>
+          <div className="opt-row opt-row-bool">
+            <span>Camera</span>
+            <button className={`switch ${liveSession.cameraEnabled ? "on" : ""}`} onClick={onToggleCamera}>
+              <span className="knob" />
+            </button>
+          </div>
+          <div className="opt-row opt-row-bool">
+            <span>Mic</span>
+            <button className={`switch ${liveSession.micEnabled ? "on" : ""}`} onClick={onToggleMic}>
+              <span className="knob" />
+            </button>
+          </div>
+        </>
       )}
 
       {secondaryVisual && (
@@ -81,7 +114,7 @@ export function InputPanel({
         <button onClick={onZoomIn}>+</button>
       </div>
 
-      {hasAudio && (
+      {canAdjustVolume && (
         <>
           <div className="panel-section-label">AUDIO</div>
           <div className="opt-row">

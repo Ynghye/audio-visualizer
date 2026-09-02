@@ -290,6 +290,42 @@
   color: var(--accent);
 }
 
+.live-info {
+  border-color: var(--accent);
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse 1.2s infinite;
+}
+
+.live-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  padding: 3px 7px;
+}
+
+.live-toggle.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-dim);
+}
+
+.live-error {
+  font-size: 10px;
+  color: var(--danger);
+  align-self: center;
+}
+
 .dims-badge {
   position: absolute;
   top: calc(var(--topbar-h, 52px) + 12px);

@@ -7,10 +7,15 @@ const sourceCache = new WeakMap<HTMLMediaElement, MediaElementAudioSourceNode>()
 export class AudioEngine {
   ctx: AudioContext;
   analyser: AnalyserNode;
+  /** Live mic input is analysed on its own node that never reaches ctx.destination,
+   * so monitoring a live session never creates feedback through the speakers. */
+  private micAnalyser: AnalyserNode;
+  private activeAnalyser: AnalyserNode;
   private gainNode: GainNode;
   private freqData: Uint8Array<ArrayBuffer>;
   private timeData: Uint8Array<ArrayBuffer>;
   private connected: HTMLMediaElement | null = null;
+  private micNode: MediaStreamAudioSourceNode | null = null;
   private streamDest: MediaStreamAudioDestinationNode | null = null;
 
   constructor() {
@@ -18,6 +23,10 @@ export class AudioEngine {
     this.analyser = this.ctx.createAnalyser();
     this.analyser.fftSize = 1024;
     this.analyser.smoothingTimeConstant = 0.6;
+    this.micAnalyser = this.ctx.createAnalyser();
+    this.micAnalyser.fftSize = 1024;
+    this.micAnalyser.smoothingTimeConstant = 0.6;
+    this.activeAnalyser = this.analyser;
     this.freqData = new Uint8Array(new ArrayBuffer(this.analyser.frequencyBinCount));
     this.timeData = new Uint8Array(new ArrayBuffer(this.analyser.frequencyBinCount));
 
@@ -29,6 +38,7 @@ export class AudioEngine {
   }
 
   connect(el: HTMLMediaElement) {
+    this.activeAnalyser = this.analyser;
     if (this.connected === el) return;
     if (this.ctx.state === "suspended") void this.ctx.resume();
 
@@ -40,6 +50,21 @@ export class AudioEngine {
     node.disconnect();
     node.connect(this.analyser);
     this.connected = el;
+  }
+
+  /** Wires a live mic MediaStream in for analysis only — never routed to speakers. */
+  connectMic(stream: MediaStream) {
+    if (this.ctx.state === "suspended") void this.ctx.resume();
+    this.disconnectMic();
+    this.micNode = this.ctx.createMediaStreamSource(stream);
+    this.micNode.connect(this.micAnalyser);
+    this.activeAnalyser = this.micAnalyser;
+  }
+
+  disconnectMic() {
+    this.micNode?.disconnect();
+    this.micNode = null;
+    if (this.activeAnalyser === this.micAnalyser) this.activeAnalyser = this.analyser;
   }
 
   setVolume(v: number) {
@@ -64,12 +89,12 @@ export class AudioEngine {
   }
 
   getFrequencyData(): Uint8Array {
-    this.analyser.getByteFrequencyData(this.freqData);
+    this.activeAnalyser.getByteFrequencyData(this.freqData);
     return this.freqData;
   }
 
   getTimeDomainData(): Uint8Array {
-    this.analyser.getByteTimeDomainData(this.timeData);
+    this.activeAnalyser.getByteTimeDomainData(this.timeData);
     return this.timeData;
   }
 

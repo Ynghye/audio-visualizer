@@ -33,6 +33,8 @@ export interface StageHandle {
 interface StageProps {
   media: LoadedMedia | null;
   secondaryVisual: { kind: "image" | "video"; el: HTMLImageElement | HTMLVideoElement } | null;
+  liveVideoEl: HTMLVideoElement | null;
+  liveCameraEnabled: boolean;
   chain: ChainEntry[];
   engine: AudioEngine;
   zoom: number;
@@ -41,7 +43,7 @@ interface StageProps {
 }
 
 export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
-  { media, secondaryVisual, chain, engine, zoom, outputScale, pixelated },
+  { media, secondaryVisual, liveVideoEl, liveCameraEnabled, chain, engine, zoom, outputScale, pixelated },
   ref,
 ) {
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -60,6 +62,10 @@ export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
   mediaRef.current = media;
   const secondaryVisualRef = useRef(secondaryVisual);
   secondaryVisualRef.current = secondaryVisual;
+  const liveVideoElRef = useRef(liveVideoEl);
+  liveVideoElRef.current = liveVideoEl;
+  const liveCameraEnabledRef = useRef(liveCameraEnabled);
+  liveCameraEnabledRef.current = liveCameraEnabled;
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const outputScaleRef = useRef(outputScale);
@@ -131,6 +137,9 @@ export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
         base = { source: m.visualEl, w: m.visualEl.videoWidth || 1, h: m.visualEl.videoHeight || 1 };
       } else if (m?.kind === "image" && m.visualEl instanceof HTMLImageElement && m.visualEl.naturalWidth) {
         base = { source: m.visualEl, w: m.visualEl.naturalWidth, h: m.visualEl.naturalHeight };
+      } else if (liveCameraEnabledRef.current && liveVideoElRef.current && liveVideoElRef.current.readyState >= 2) {
+        const v = liveVideoElRef.current;
+        base = { source: v, w: v.videoWidth || 1, h: v.videoHeight || 1 };
       } else {
         const img = defaultImageRef.current;
         if (img && img.complete && img.naturalWidth) {

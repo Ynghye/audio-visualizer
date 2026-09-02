@@ -1,7 +1,7 @@
 import type { ChainEntry } from "../filters/types";
 import type { GLRenderer } from "../gl/GLRenderer";
 import type { LoadedMedia } from "../types";
-import type { SecondaryVisual } from "../App";
+import type { LiveSession, SecondaryVisual } from "../App";
 import type { BaseFrame, StageStats } from "./Stage";
 import { InputPanel } from "./panels/InputPanel";
 import { EffectsPanel, type BrowserTarget } from "./panels/EffectsPanel";
@@ -26,11 +26,15 @@ interface ParamPanelProps {
   media: LoadedMedia | null;
   secondaryVisual: SecondaryVisual | null;
   onToggleSecondaryVisualMuted: () => void;
+  liveSession: LiveSession | null;
+  onToggleCamera: () => void;
+  onToggleMic: () => void;
   zoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onZoomReset: () => void;
   hasAudio: boolean;
+  canAdjustVolume: boolean;
   volume: number;
   onVolumeChange: (v: number) => void;
 
@@ -77,11 +81,14 @@ export function ParamPanel(props: ParamPanelProps) {
             media={props.media}
             secondaryVisual={props.secondaryVisual}
             onToggleSecondaryVisualMuted={props.onToggleSecondaryVisualMuted}
+            liveSession={props.liveSession}
+            onToggleCamera={props.onToggleCamera}
+            onToggleMic={props.onToggleMic}
             zoom={props.zoom}
             onZoomIn={props.onZoomIn}
             onZoomOut={props.onZoomOut}
             onZoomReset={props.onZoomReset}
-            hasAudio={props.hasAudio}
+            canAdjustVolume={props.canAdjustVolume}
             volume={props.volume}
             onVolumeChange={props.onVolumeChange}
           />

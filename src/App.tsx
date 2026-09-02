@@ -25,6 +25,14 @@ export interface SecondaryVisual {
   dimensions: { width: number; height: number } | null;
 }
 
+export interface LiveSession {
+  stream: MediaStream;
+  videoEl: HTMLVideoElement;
+  cameraEnabled: boolean;
+  micEnabled: boolean;
+  dimensions: { width: number; height: number } | null;
+}
+
 function classify(file: File): MediaKind {
   if (file.type.startsWith("video/")) return "video";
   if (file.type.startsWith("image/")) return "image";
@@ -44,6 +52,8 @@ export default function App() {
   const [media, setMedia] = useState<LoadedMedia | null>(null);
   const [secondaryAudio, setSecondaryAudio] = useState<SecondaryAudio | null>(null);
   const [secondaryVisual, setSecondaryVisual] = useState<SecondaryVisual | null>(null);
+  const [liveSession, setLiveSession] = useState<LiveSession | null>(null);
+  const [liveError, setLiveError] = useState<string | null>(null);
   const [chain, setChain] = useState<ChainEntry[]>(() => {
     const dither = makeEntry("burkes");
     dither.audioLinks = { levels: "level" };
@@ -77,6 +87,9 @@ export default function App() {
   const chunksRef = useRef<Blob[]>([]);
 
   const activeAudioEl = media?.audioEl ?? secondaryAudio?.el ?? null;
+  // Live mic input has no HTMLMediaElement to play/pause or seek, but it still feeds
+  // real band data — filter audio-links should stay available for it.
+  const hasAudioSignal = !!activeAudioEl || !!(liveSession && liveSession.micEnabled && !secondaryAudio);
 
   // The top bar's media-row wraps onto a second line on narrow windows / with many
   // media chips, so its height isn't fixed — measure the whole two-row container live
@@ -114,7 +127,76 @@ export default function App() {
     });
   }
 
+  function stopLiveSession() {
+    setLiveSession((prev) => {
+      if (prev) {
+        prev.stream.getTracks().forEach((t) => t.stop());
+        engine.disconnectMic();
+      }
+      return null;
+    });
+  }
+
+  async function startLiveSession() {
+    setLiveError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      // A fresh session replaces whatever was loaded before, same as "Replace Media" does.
+      clearMedia();
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      video.muted = true; // never play the raw element's audio directly — mic goes through the engine instead
+      video.playsInline = true;
+      video.play().catch(() => {});
+      video.addEventListener("loadedmetadata", () => {
+        setLiveSession((prev) =>
+          prev && prev.videoEl === video
+            ? { ...prev, dimensions: { width: video.videoWidth, height: video.videoHeight } }
+            : prev,
+        );
+      });
+      const micTrack = stream.getAudioTracks()[0];
+      if (micTrack) engine.connectMic(new MediaStream([micTrack]));
+      setLiveSession({ stream, videoEl: video, cameraEnabled: true, micEnabled: true, dimensions: null });
+      setPanelTab(2);
+      setActiveEntryId((id) => id ?? chain[0]?.id ?? null);
+    } catch {
+      setLiveError("Camera/mic access was denied or unavailable.");
+    }
+  }
+
+  function toggleCamera() {
+    setLiveSession((prev) => {
+      if (!prev) return prev;
+      const enabled = !prev.cameraEnabled;
+      prev.stream.getVideoTracks().forEach((t) => (t.enabled = enabled));
+      // Re-enabling the camera makes any loaded replacement visual stale — drop it so
+      // it doesn't keep sitting there hidden once the live feed takes back over.
+      if (enabled) clearSecondaryVisual();
+      return { ...prev, cameraEnabled: enabled };
+    });
+  }
+
+  function toggleMic() {
+    setLiveSession((prev) => {
+      if (!prev) return prev;
+      const enabled = !prev.micEnabled;
+      prev.stream.getAudioTracks().forEach((t) => (t.enabled = enabled));
+      if (enabled) {
+        const micTrack = prev.stream.getAudioTracks()[0];
+        if (micTrack) engine.connectMic(new MediaStream([micTrack]));
+        // Same reasoning as the camera: a replacement audio file becomes stale once the
+        // live mic is reactivated, so stop it instead of leaving it playing hidden.
+        clearSecondaryAudio();
+      } else {
+        engine.disconnectMic();
+      }
+      return { ...prev, micEnabled: enabled };
+    });
+  }
+
   function handleFile(file: File) {
+    stopLiveSession();
     const kind = classify(file);
     const url = URL.createObjectURL(file);
 
@@ -425,6 +507,8 @@ export default function App() {
         ref={stageRef}
         media={media}
         secondaryVisual={secondaryVisual}
+        liveVideoEl={liveSession?.videoEl ?? null}
+        liveCameraEnabled={liveSession?.cameraEnabled ?? false}
         chain={chain}
         engine={engine}
         zoom={zoom}
@@ -433,7 +517,10 @@ export default function App() {
       />
 
       {(() => {
-        const dims = secondaryVisual?.dimensions ?? (media?.kind === "image" || media?.kind === "video" ? media.dimensions : null);
+        const dims =
+          secondaryVisual?.dimensions ??
+          (media?.kind === "image" || media?.kind === "video" ? media.dimensions : null) ??
+          (liveSession?.cameraEnabled ? liveSession.dimensions : null);
         return dims ? (
           <div className="dims-badge frosted">
             {dims.width}×{dims.height}px
@@ -457,6 +544,12 @@ export default function App() {
         currentTime={currentTime}
         duration={duration}
         onSeek={seek}
+        liveSession={liveSession}
+        liveError={liveError}
+        onStartLiveSession={startLiveSession}
+        onStopLiveSession={stopLiveSession}
+        onToggleCamera={toggleCamera}
+        onToggleMic={toggleMic}
       />
       <input
         ref={secondaryInputRef}
@@ -489,11 +582,15 @@ export default function App() {
         media={media}
         secondaryVisual={secondaryVisual}
         onToggleSecondaryVisualMuted={toggleSecondaryVisualMuted}
+        liveSession={liveSession}
+        onToggleCamera={toggleCamera}
+        onToggleMic={toggleMic}
         zoom={zoom}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
         onZoomReset={zoomReset}
-        hasAudio={!!activeAudioEl}
+        hasAudio={hasAudioSignal}
+        canAdjustVolume={!!activeAudioEl}
         volume={volume}
         onVolumeChange={handleVolumeChange}
         chain={chain}

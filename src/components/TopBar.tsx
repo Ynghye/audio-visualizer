@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import type { LoadedMedia } from "../types";
+import type { LiveSession } from "../App";
 import { MediaTabs } from "./MediaTabs";
 
 interface TopBarProps {
@@ -18,6 +19,12 @@ interface TopBarProps {
   currentTime: number;
   duration: number;
   onSeek: (t: number) => void;
+  liveSession: LiveSession | null;
+  liveError: string | null;
+  onStartLiveSession: () => void;
+  onStopLiveSession: () => void;
+  onToggleCamera: () => void;
+  onToggleMic: () => void;
 }
 
 function formatTime(s: number): string {
@@ -61,6 +68,12 @@ export function TopBar({
   currentTime,
   duration,
   onSeek,
+  liveSession,
+  liveError,
+  onStartLiveSession,
+  onStopLiveSession,
+  onToggleCamera,
+  onToggleMic,
 }: TopBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -96,6 +109,25 @@ export function TopBar({
           }}
         />
 
+        {liveSession ? (
+          <div className="media-info live-info">
+            <span className="live-dot" />
+            <span className="kind">live</span>
+            <button className={`live-toggle ${liveSession.cameraEnabled ? "on" : ""}`} onClick={onToggleCamera}>
+              Cam
+            </button>
+            <button className={`live-toggle ${liveSession.micEnabled ? "on" : ""}`} onClick={onToggleMic}>
+              Mic
+            </button>
+            <button onClick={onStopLiveSession}>×</button>
+          </div>
+        ) : (
+          <button className="add-secondary-btn" onClick={onStartLiveSession}>
+            + Live Session
+          </button>
+        )}
+        {liveError && <span className="live-error">{liveError}</span>}
+
         {media && (
           <div className="media-info">
             <span className="kind">{media.kind}</span>
@@ -112,7 +144,7 @@ export function TopBar({
           </div>
         )}
 
-        {media?.kind === "image" &&
+        {(media?.kind === "image" || (liveSession && !liveSession.micEnabled)) &&
           (secondaryAudioName ? (
             <div className="media-info">
               <span className="kind">audio</span>
@@ -129,7 +161,7 @@ export function TopBar({
             </button>
           ))}
 
-        {media?.kind === "audio" &&
+        {(media?.kind === "audio" || (liveSession && !liveSession.cameraEnabled)) &&
           (secondaryVisualName ? (
             <div className="media-info">
               <span>{secondaryVisualName}</span>
