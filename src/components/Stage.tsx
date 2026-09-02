@@ -32,6 +32,7 @@ export interface StageHandle {
 
 interface StageProps {
   media: LoadedMedia | null;
+  secondaryVisual: { kind: "image" | "video"; el: HTMLImageElement | HTMLVideoElement } | null;
   chain: ChainEntry[];
   engine: AudioEngine;
   zoom: number;
@@ -40,7 +41,7 @@ interface StageProps {
 }
 
 export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
-  { media, chain, engine, zoom, outputScale, pixelated },
+  { media, secondaryVisual, chain, engine, zoom, outputScale, pixelated },
   ref,
 ) {
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,6 +58,8 @@ export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
   chainRef.current = chain;
   const mediaRef = useRef(media);
   mediaRef.current = media;
+  const secondaryVisualRef = useRef(secondaryVisual);
+  secondaryVisualRef.current = secondaryVisual;
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const outputScaleRef = useRef(outputScale);
@@ -118,8 +121,13 @@ export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
       const t = (now - start) / 1000;
       const m = mediaRef.current;
 
+      const sv = secondaryVisualRef.current;
       let base: BaseFrame | null = null;
-      if (m?.kind === "video" && m.visualEl instanceof HTMLVideoElement && m.visualEl.readyState >= 2) {
+      if (sv?.kind === "video" && sv.el instanceof HTMLVideoElement && sv.el.readyState >= 2) {
+        base = { source: sv.el, w: sv.el.videoWidth || 1, h: sv.el.videoHeight || 1 };
+      } else if (sv?.kind === "image" && sv.el instanceof HTMLImageElement && sv.el.naturalWidth) {
+        base = { source: sv.el, w: sv.el.naturalWidth, h: sv.el.naturalHeight };
+      } else if (m?.kind === "video" && m.visualEl instanceof HTMLVideoElement && m.visualEl.readyState >= 2) {
         base = { source: m.visualEl, w: m.visualEl.videoWidth || 1, h: m.visualEl.videoHeight || 1 };
       } else if (m?.kind === "image" && m.visualEl instanceof HTMLImageElement && m.visualEl.naturalWidth) {
         base = { source: m.visualEl, w: m.visualEl.naturalWidth, h: m.visualEl.naturalHeight };

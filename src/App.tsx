@@ -16,6 +16,15 @@ interface SecondaryAudio {
   el: HTMLAudioElement;
 }
 
+export interface SecondaryVisual {
+  url: string;
+  name: string;
+  kind: "image" | "video";
+  el: HTMLImageElement | HTMLVideoElement;
+  muted: boolean;
+  dimensions: { width: number; height: number } | null;
+}
+
 function classify(file: File): MediaKind {
   if (file.type.startsWith("video/")) return "video";
   if (file.type.startsWith("image/")) return "image";
@@ -34,6 +43,7 @@ export default function App() {
 
   const [media, setMedia] = useState<LoadedMedia | null>(null);
   const [secondaryAudio, setSecondaryAudio] = useState<SecondaryAudio | null>(null);
+  const [secondaryVisual, setSecondaryVisual] = useState<SecondaryVisual | null>(null);
   const [chain, setChain] = useState<ChainEntry[]>(() => {
     const dither = makeEntry("burkes");
     dither.audioLinks = { levels: "level" };
@@ -62,6 +72,7 @@ export default function App() {
 
   const stageRef = useRef<StageHandle>(null);
   const secondaryInputRef = useRef<HTMLInputElement>(null);
+  const secondaryVisualInputRef = useRef<HTMLInputElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -93,6 +104,16 @@ export default function App() {
     });
   }
 
+  function clearSecondaryVisual() {
+    setSecondaryVisual((prev) => {
+      if (prev) {
+        if (prev.el instanceof HTMLVideoElement) prev.el.pause();
+        URL.revokeObjectURL(prev.url);
+      }
+      return null;
+    });
+  }
+
   function handleFile(file: File) {
     const kind = classify(file);
     const url = URL.createObjectURL(file);
@@ -107,6 +128,9 @@ export default function App() {
     // Secondary audio is paired with a photo — keep it when swapping one photo for
     // another, only drop it if the new media isn't a photo (the pairing no longer applies).
     if (kind !== "image") clearSecondaryAudio();
+    // Secondary visual is paired with audio the same way, mirrored — keep it only while
+    // the primary slot stays audio.
+    if (kind !== "audio") clearSecondaryVisual();
 
     if (kind === "video") {
       const video = document.createElement("video");
@@ -206,6 +230,50 @@ export default function App() {
     setSecondaryAudio({ url, name: file.name, el: audio });
   }
 
+  function handleSecondaryVisualFile(file: File) {
+    const kind = classify(file);
+    if (kind === "audio") return;
+    clearSecondaryVisual();
+    const url = URL.createObjectURL(file);
+
+    if (kind === "video") {
+      const video = document.createElement("video");
+      video.src = url;
+      video.loop = true;
+      video.playsInline = true;
+      video.muted = true;
+      video.play().catch(() => {});
+      video.addEventListener("loadedmetadata", () => {
+        setSecondaryVisual((prev) =>
+          prev && prev.el === video
+            ? { ...prev, dimensions: { width: video.videoWidth, height: video.videoHeight } }
+            : prev,
+        );
+      });
+      setSecondaryVisual({ url, name: file.name, kind, el: video, muted: true, dimensions: null });
+    } else {
+      const img = new Image();
+      img.src = url;
+      img.addEventListener("load", () => {
+        setSecondaryVisual((prev) =>
+          prev && prev.el === img
+            ? { ...prev, dimensions: { width: img.naturalWidth, height: img.naturalHeight } }
+            : prev,
+        );
+      });
+      setSecondaryVisual({ url, name: file.name, kind, el: img, muted: false, dimensions: null });
+    }
+  }
+
+  function toggleSecondaryVisualMuted() {
+    setSecondaryVisual((prev) => {
+      if (!prev || !(prev.el instanceof HTMLVideoElement)) return prev;
+      const muted = !prev.muted;
+      prev.el.muted = muted;
+      return { ...prev, muted };
+    });
+  }
+
   function clearMedia() {
     setMedia((prev) => {
       if (prev) {
@@ -216,6 +284,7 @@ export default function App() {
       return null;
     });
     clearSecondaryAudio();
+    clearSecondaryVisual();
   }
 
   useEffect(() => {
@@ -355,6 +424,7 @@ export default function App() {
       <Stage
         ref={stageRef}
         media={media}
+        secondaryVisual={secondaryVisual}
         chain={chain}
         engine={engine}
         zoom={zoom}
@@ -362,20 +432,26 @@ export default function App() {
         pixelated={pixelated}
       />
 
-      {media && (media.kind === "image" || media.kind === "video") && media.dimensions && (
-        <div className="dims-badge frosted">
-          {media.dimensions.width}×{media.dimensions.height}px
-        </div>
-      )}
+      {(() => {
+        const dims = secondaryVisual?.dimensions ?? (media?.kind === "image" || media?.kind === "video" ? media.dimensions : null);
+        return dims ? (
+          <div className="dims-badge frosted">
+            {dims.width}×{dims.height}px
+          </div>
+        ) : null;
+      })()}
 
       <TopBar
         media={media}
         secondaryAudioName={secondaryAudio?.name ?? null}
+        secondaryVisualName={secondaryVisual?.name ?? null}
         onFile={handleFile}
         dragActive={dragActive}
         onClear={clearMedia}
         onClearSecondaryAudio={clearSecondaryAudio}
         onAddSecondaryAudio={() => secondaryInputRef.current?.click()}
+        onClearSecondaryVisual={clearSecondaryVisual}
+        onAddSecondaryVisual={() => secondaryVisualInputRef.current?.click()}
         onTogglePlay={togglePlay}
         playing={playing}
         currentTime={currentTime}
@@ -393,6 +469,17 @@ export default function App() {
           e.target.value = "";
         }}
       />
+      <input
+        ref={secondaryVisualInputRef}
+        type="file"
+        accept="video/*,image/*"
+        hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleSecondaryVisualFile(file);
+          e.target.value = "";
+        }}
+      />
 
       <ParamPanel
         tab={panelTab}
@@ -400,6 +487,8 @@ export default function App() {
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed((c) => !c)}
         media={media}
+        secondaryVisual={secondaryVisual}
+        onToggleSecondaryVisualMuted={toggleSecondaryVisualMuted}
         zoom={zoom}
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}

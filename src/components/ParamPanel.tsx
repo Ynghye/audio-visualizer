@@ -1,6 +1,7 @@
 import type { ChainEntry } from "../filters/types";
 import type { GLRenderer } from "../gl/GLRenderer";
 import type { LoadedMedia } from "../types";
+import type { SecondaryVisual } from "../App";
 import type { BaseFrame, StageStats } from "./Stage";
 import { InputPanel } from "./panels/InputPanel";
 import { EffectsPanel, type BrowserTarget } from "./panels/EffectsPanel";
@@ -23,6 +24,8 @@ interface ParamPanelProps {
   onToggleCollapsed: () => void;
 
   media: LoadedMedia | null;
+  secondaryVisual: SecondaryVisual | null;
+  onToggleSecondaryVisualMuted: () => void;
   zoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -72,6 +75,8 @@ export function ParamPanel(props: ParamPanelProps) {
         {tab === 1 && (
           <InputPanel
             media={props.media}
+            secondaryVisual={props.secondaryVisual}
+            onToggleSecondaryVisualMuted={props.onToggleSecondaryVisualMuted}
             zoom={props.zoom}
             onZoomIn={props.onZoomIn}
             onZoomOut={props.onZoomOut}

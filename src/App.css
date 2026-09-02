@@ -273,7 +273,7 @@
   white-space: nowrap;
 }
 
-.add-audio-btn {
+.add-secondary-btn {
   flex-shrink: 0;
   white-space: nowrap;
   padding: 8px 14px;
@@ -285,7 +285,7 @@
   letter-spacing: 0.04em;
 }
 
-.add-audio-btn:hover {
+.add-secondary-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -1099,6 +1099,29 @@
   font-size: 11px;
   color: var(--text-dim);
   padding: 10px 0;
+}
+
+/* Narrow phones — compact the brand+tabs pill so it reliably stays on one line
+   instead of the tabs wrapping onto an awkward half-empty second line. */
+@media (max-width: 480px) {
+  .topbar-pill {
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 7px 8px 7px 14px;
+  }
+
+  .brand-logo {
+    height: 11px;
+  }
+
+  .topbar-divider {
+    margin: 0;
+  }
+
+  .media-tab {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
 }
 
 /* Mobile */

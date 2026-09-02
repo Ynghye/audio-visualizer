@@ -5,11 +5,14 @@ import { MediaTabs } from "./MediaTabs";
 interface TopBarProps {
   media: LoadedMedia | null;
   secondaryAudioName: string | null;
+  secondaryVisualName: string | null;
   onFile: (file: File) => void;
   dragActive: boolean;
   onClear: () => void;
   onClearSecondaryAudio: () => void;
   onAddSecondaryAudio: () => void;
+  onClearSecondaryVisual: () => void;
+  onAddSecondaryVisual: () => void;
   onTogglePlay: () => void;
   playing: boolean;
   currentTime: number;
@@ -45,11 +48,14 @@ function ProgressBar({ currentTime, duration, onSeek }: { currentTime: number; d
 export function TopBar({
   media,
   secondaryAudioName,
+  secondaryVisualName,
   onFile,
   dragActive,
   onClear,
   onClearSecondaryAudio,
   onAddSecondaryAudio,
+  onClearSecondaryVisual,
+  onAddSecondaryVisual,
   onTogglePlay,
   playing,
   currentTime,
@@ -118,8 +124,20 @@ export function TopBar({
               <button onClick={onClearSecondaryAudio}>×</button>
             </div>
           ) : (
-            <button className="add-audio-btn" onClick={onAddSecondaryAudio}>
+            <button className="add-secondary-btn" onClick={onAddSecondaryAudio}>
               + Add Audio
+            </button>
+          ))}
+
+        {media?.kind === "audio" &&
+          (secondaryVisualName ? (
+            <div className="media-info">
+              <span>{secondaryVisualName}</span>
+              <button onClick={onClearSecondaryVisual}>×</button>
+            </div>
+          ) : (
+            <button className="add-secondary-btn" onClick={onAddSecondaryVisual}>
+              + Add Image / Video
             </button>
           ))}
       </div>
