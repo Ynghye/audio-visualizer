@@ -1211,21 +1211,27 @@
    instead of the tabs wrapping onto an awkward half-empty second line. */
 @media (max-width: 480px) {
   .topbar-pill {
-    flex-wrap: nowrap;
-    gap: 8px;
-    padding: 7px 8px 7px 14px;
+    padding: 12px 22px 9px;
+    max-width: calc(100vw - 28px);
   }
 
   .brand-logo {
     height: 11px;
+    max-width: 100%;
   }
 
-  .topbar-divider {
-    margin: 0;
+  .topbar-capsule {
+    max-width: calc(100vw - 28px);
+    padding: 4px;
   }
 
-  .media-tab {
-    padding: 6px 8px;
+  .capsule-icon-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .capsule-btn {
+    padding: 7px 10px;
     font-size: 9px;
   }
 }

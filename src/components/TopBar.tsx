@@ -95,7 +95,6 @@ export function TopBar({
     <div className="topbar">
       <div className="topbar-pill frosted">
         <span className="brand">
-          <span className="brand-mark">✳</span>
           <img className="brand-logo" src="/logo.svg" alt="Form Follows Sound" />
         </span>
       </div>
