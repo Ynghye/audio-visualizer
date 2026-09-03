@@ -50,7 +50,7 @@
   padding: 16px 34px 12px;
   /* A flag/tab silhouette — flat top, sides angled in toward a shorter bottom edge —
      instead of a plain rectangle. */
-  clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+  clip-path: polygon(0 0, 100% 0, 87% 100%, 13% 100%);
 }
 
 .topbar-media-row {
@@ -500,10 +500,15 @@
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 6px;
-  padding: 16px 16px 14px;
+  /* Figma Auto Layout: outer padding 10, gap ~28-30 between the tabs row and each
+     top-level section. Those transfer directly (they don't depend on panel width) —
+     unlike the tabs row's own 30px gap, which was measured on a 654px-wide panel at
+     1920 canvas scale and would overflow our intentionally narrower sidebar; that one
+     stays proportionally scaled down instead of applied literally. */
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 28px;
   overflow-y: auto;
   pointer-events: auto;
   transform: translateX(0);
@@ -551,7 +556,7 @@
 .param-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 28px;
 }
 
 .panel-section-label {
