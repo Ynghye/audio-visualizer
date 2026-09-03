@@ -92,19 +92,15 @@
 /* The dice/Live-Session/Add-Media group reads as one continuous dark capsule —
    a single rounded pill background with borderless segment buttons inside,
    rather than several separate bordered chips. */
-/* One continuous shared background (not per-segment fills) so the icon and both
-   buttons read as one fused bar with no visible seam — matching the reference
-   exactly — while staying real flexbox (no vector to stretch/distort). Each
-   button gets only a thin inset stroke to mark its own hit area, same as the
-   reference's subtle divider treatment. Sizing from the user's Figma Auto
-   Layout: outer padding 10, icon 64px circle, button row height 45.6px. */
+/* The icon sits in its own taller circle blob; the two buttons share a shorter
+   pill blob. They touch with zero gap so the differing heights read as one
+   flowing shape (like the reference's wave) instead of a uniform bar with
+   buttons floating inside it. Sizing from the user's Figma Auto Layout: icon
+   64px circle, button row height 45.6px. */
 .topbar-capsule {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  background: #1d1d1d;
-  border-radius: 999px;
-  padding: 10px;
 }
 
 .capsule-icon-btn {
@@ -114,25 +110,31 @@
   flex-shrink: 0;
   width: 64px;
   height: 64px;
-  background: none;
+  background: #1d1d1d;
   border: none;
   border-radius: 50%;
   color: #fff;
 }
 
 .capsule-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #2c2c2c;
 }
 
 .capsule-btn-row {
   display: flex;
   align-items: center;
+  height: 45.6px;
+  background: #1d1d1d;
+  border-radius: 999px;
+  padding: 0 6px;
 }
 
 .capsule-btn {
   flex-shrink: 0;
   white-space: nowrap;
-  height: 45.6px;
+  height: calc(100% - 12px);
+  display: flex;
+  align-items: center;
   background: none;
   border: 1px solid #4a4a4a;
   border-radius: 999px;
@@ -1240,22 +1242,20 @@
 
   .topbar-capsule {
     max-width: calc(100vw - 28px);
-    padding: 6px;
-    gap: 6px;
   }
 
   .capsule-icon-btn {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
   }
 
   .capsule-btn-row {
-    gap: 8px;
+    height: 28px;
+    padding: 0 4px;
   }
 
   .capsule-btn {
-    height: auto;
-    padding: 7px 10px;
+    padding: 0 10px;
     font-size: 9px;
   }
 }
