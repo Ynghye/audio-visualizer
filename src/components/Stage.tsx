@@ -6,6 +6,9 @@ import type { ChainEntry } from "../filters/types";
 import type { LoadedMedia } from "../types";
 
 const STAGE_BG = "#000000";
+/** Inset from the viewport edges so the stage reads as a rounded card floating on the
+ * white page, matching the outer margin already used by the topbar/panel. */
+const STAGE_MARGIN = 14;
 /** Shown whenever there's no loaded video/photo (including audio-only) — the chain
  * still runs on it, so an audio-linked filter param is visibly reactive out of the box. */
 const DEFAULT_IMAGE_URL = "/default-image.png";
@@ -95,8 +98,8 @@ export const Stage = forwardRef<StageHandle, StageProps>(function Stage(
 
     const resize = () => {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const w = Math.floor(window.innerWidth * dpr);
-      const h = Math.floor(window.innerHeight * dpr);
+      const w = Math.floor((window.innerWidth - STAGE_MARGIN * 2) * dpr);
+      const h = Math.floor((window.innerHeight - STAGE_MARGIN * 2) * dpr);
       if (displayCanvas.width !== w || displayCanvas.height !== h) {
         displayCanvas.width = w;
         displayCanvas.height = h;
