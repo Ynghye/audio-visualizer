@@ -10,7 +10,9 @@
   --accent-soft: rgba(232, 98, 44, 0.12);
   --danger: #d9534f;
   color-scheme: light;
-  font-family: "SF Mono", "IBM Plex Mono", ui-monospace, "Menlo", monospace;
+  --font-mono: "Space Mono", "SF Mono", "IBM Plex Mono", ui-monospace, "Menlo", monospace;
+  --font-heading: "Source Sans 3", "SF Mono", ui-sans-serif, sans-serif;
+  font-family: var(--font-mono);
 }
 
 * {

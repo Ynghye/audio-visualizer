@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import type { LoadedMedia } from "../types";
 import type { LiveSession } from "../App";
-import { MediaTabs } from "./MediaTabs";
 
 interface TopBarProps {
   media: LoadedMedia | null;
@@ -25,6 +24,20 @@ interface TopBarProps {
   onStopLiveSession: () => void;
   onToggleCamera: () => void;
   onToggleMic: () => void;
+  onShuffle: () => void;
+}
+
+function DiceIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1.5" y="1.5" width="13" height="13" rx="3" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="5" cy="5" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="5" r="1.1" fill="currentColor" />
+      <circle cx="8" cy="8" r="1.1" fill="currentColor" />
+      <circle cx="5" cy="11" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="11" r="1.1" fill="currentColor" />
+    </svg>
+  );
 }
 
 function formatTime(s: number): string {
@@ -74,6 +87,7 @@ export function TopBar({
   onStopLiveSession,
   onToggleCamera,
   onToggleMic,
+  onShuffle,
 }: TopBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -84,34 +98,39 @@ export function TopBar({
           <span className="brand-mark">✳</span>
           <img className="brand-logo" src="/logo.svg" alt="Form Follows Sound" />
         </span>
-
-        <div className="topbar-divider" />
-
-        <div className="topbar-right">
-          <MediaTabs activeKind={media?.kind ?? null} />
-        </div>
       </div>
 
-      <div className="topbar-media-row">
+      <div className="topbar-capsule">
+        <button className="capsule-icon-btn" onClick={onShuffle} title="Shuffle 3 random effects">
+          <DiceIcon />
+        </button>
         {!liveSession && (
-          <button className={`load-btn ${dragActive ? "drag-active" : ""}`} onClick={() => inputRef.current?.click()}>
-            <span className="load-btn-icon">+</span>
-            {dragActive ? "Add file" : media ? "Replace Media" : "Load Audio / Video / Photo"}
+          <button className="capsule-btn" onClick={onStartLiveSession}>
+            + Live Session
           </button>
         )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="audio/*,video/*,image/*,.mp3,.m4a,.wav,.aac,.flac,.ogg"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) onFile(file);
-            e.target.value = "";
-          }}
-        />
+        {!liveSession && (
+          <button className={`capsule-btn ${media ? "status" : ""}`} onClick={() => inputRef.current?.click()}>
+            {media ? "On progress" : "+ Add Media"}
+          </button>
+        )}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="audio/*,video/*,image/*,.mp3,.m4a,.wav,.aac,.flac,.ogg"
+        hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onFile(file);
+          e.target.value = "";
+        }}
+      />
+      {dragActive && <span className="live-error">Drop to add file</span>}
+      {liveError && <span className="live-error">{liveError}</span>}
 
-        {liveSession ? (
+      <div className="topbar-media-row">
+        {liveSession && (
           <div className="media-info live-info">
             <span className="live-dot" />
             <span className="kind">live</span>
@@ -123,13 +142,7 @@ export function TopBar({
             </button>
             <button onClick={onStopLiveSession}>×</button>
           </div>
-        ) : (
-          <button className="load-btn live-start-btn" onClick={onStartLiveSession}>
-            <span className="load-btn-icon">+</span>
-            Live Session
-          </button>
         )}
-        {liveError && <span className="live-error">{liveError}</span>}
 
         {media && (
           <div className="media-info">

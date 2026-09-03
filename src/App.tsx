@@ -6,7 +6,7 @@ import { TopBar } from "./components/TopBar";
 import { ParamPanel, type PanelTab } from "./components/ParamPanel";
 import type { BrowserTarget } from "./components/panels/EffectsPanel";
 import { CategoryBrowser } from "./components/CategoryBrowser";
-import { filterIndex } from "./filters/registry";
+import { filterIndex, filterList } from "./filters/registry";
 import { defaultValues, type ChainEntry } from "./filters/types";
 import type { LoadedMedia, MediaKind } from "./types";
 
@@ -481,6 +481,19 @@ export default function App() {
     setRecording(true);
   }
 
+  function shuffleChain() {
+    const picks: string[] = [];
+    const remaining = [...filterList];
+    for (let i = 0; i < 3 && remaining.length > 0; i++) {
+      const idx = Math.floor(Math.random() * remaining.length);
+      picks.push(remaining.splice(idx, 1)[0].name);
+    }
+    const entries = picks.map((name) => makeEntry(name));
+    setChain(entries);
+    setActiveEntryId(entries[0]?.id ?? null);
+    setPanelTab(2);
+  }
+
   function handleSelectFilter(filterName: string) {
     if (!browserTarget) return;
     if (browserTarget.mode === "add") {
@@ -553,6 +566,7 @@ export default function App() {
         onStopLiveSession={stopLiveSession}
         onToggleCamera={toggleCamera}
         onToggleMic={toggleMic}
+        onShuffle={shuffleChain}
       />
       <input
         ref={secondaryInputRef}
