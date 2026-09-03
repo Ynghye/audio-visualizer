@@ -92,30 +92,17 @@
 /* The dice/Live-Session/Add-Media group reads as one continuous dark capsule —
    a single rounded pill background with borderless segment buttons inside,
    rather than several separate bordered chips. */
+/* Real flexbox, not a stretched vector background — each pill sizes to its own
+   content, so nothing distorts when button text/state changes. Numbers taken
+   from the user's Figma Auto Layout: outer padding 10, outer gap 10 (icon to
+   button group), inner gap 30 (between the two buttons), icon 64px circle,
+   button row height 45.6px. */
 .topbar-capsule {
-  position: relative;
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  border-radius: 999px;
-  padding: 6px;
-  gap: 2px;
-}
-
-/* Non-uniform stretch so the vector caps/dividers reach whatever width the real
-   button content needs — see the CapsuleBg component for the tradeoff this implies. */
-.capsule-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.topbar-capsule > button {
-  position: relative;
-  z-index: 1;
+  padding: 10px;
+  gap: 10px;
 }
 
 .capsule-icon-btn {
@@ -123,37 +110,45 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  background: none;
+  width: 64px;
+  height: 64px;
+  background: #1d1d1d;
   border: none;
   border-radius: 50%;
   color: #fff;
 }
 
 .capsule-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #2c2c2c;
+}
+
+.capsule-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 30px;
 }
 
 .capsule-btn {
   flex-shrink: 0;
   white-space: nowrap;
-  background: none;
-  border: none;
+  height: 45.6px;
+  background: #1d1d1d;
+  border: 1px solid #4a4a4a;
   border-radius: 999px;
   color: #fff;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  padding: 9px 16px;
+  padding: 0 24px;
 }
 
 .capsule-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #2c2c2c;
 }
 
 .capsule-btn.status {
   background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -1239,7 +1234,8 @@
 
   .topbar-capsule {
     max-width: calc(100vw - 28px);
-    padding: 4px;
+    padding: 6px;
+    gap: 6px;
   }
 
   .capsule-icon-btn {
@@ -1247,7 +1243,12 @@
     height: 28px;
   }
 
+  .capsule-btn-row {
+    gap: 8px;
+  }
+
   .capsule-btn {
+    height: auto;
     padding: 7px 10px;
     font-size: 9px;
   }

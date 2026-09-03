@@ -27,39 +27,6 @@ interface TopBarProps {
   onShuffle: () => void;
 }
 
-/** The capsule's background, traced from the user's dedicated menu.svg: the outer
- * fused-pill silhouette plus the two inset rounded-rect outlines that mark each
- * button's own hit area (the thin gray stroke is what makes each segment read as
- * its own button, per the "grouped so it's easy to tell what's clickable" note).
- * Stretched (non-uniform scale) to whatever width the real button content needs —
- * the divider positions are approximate against our text rather than pixel-locked
- * to the mockup's specific button labels, the necessary tradeoff for staying
- * responsive instead of hard-coding fixed segment widths. */
-function CapsuleBg() {
-  return (
-    <svg className="capsule-bg" viewBox="0 0 503 92" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        fill="#1d1d1d"
-        d="M272.43 14.0059C278.615 14.1208 284.565 16.0124 289.67 19.4805C294.76 22.9404 300.65 24.6797 306.55 24.6797C312.45 24.6797 318.33 22.9503 323.43 19.4805C328.7 15.8905 334.87 14.0001 341.27 14H447.94L448.763 14.0107C465.984 14.4471 479.811 28.5438 479.811 45.8701C479.81 63.4713 465.542 77.74 447.94 77.7402V77.75H341.271V77.7393L341.27 77.7402C334.87 77.7401 328.7 75.8397 323.43 72.2598C318.34 68.7999 312.45 67.0596 306.55 67.0596C300.65 67.0596 294.77 68.7898 289.67 72.2598C284.4 75.8497 278.23 77.7402 271.83 77.7402V77.75H126.6V77.7363C126.503 77.7372 126.406 77.7402 126.31 77.7402C119.91 77.7401 113.74 75.8397 108.47 72.2598C103.38 68.7999 97.4897 67.0596 91.5898 67.0596C85.6899 67.0596 79.8099 68.7898 74.71 72.2598C69.44 75.8497 63.2701 77.7402 56.8701 77.7402C39.2902 77.7402 25.0001 63.4401 25 45.8701C25 28.3001 39.3001 14 56.8701 14C63.2701 14 69.44 15.9005 74.71 19.4805C79.7999 22.9403 85.69 24.6797 91.5898 24.6797C97.4897 24.6797 103.37 22.9503 108.47 19.4805C113.74 15.8905 119.91 14.0001 126.31 14C126.406 14 126.503 14.0021 126.6 14.0029V14H271.83L272.43 14.0059Z"
-      />
-      <path
-        fill="#1d1d1d"
-        stroke="#B2B2B2"
-        strokeWidth="0.75"
-        strokeMiterlimit="10"
-        d="M445.3 23.0699H344.58C331.988 23.0699 321.78 33.2779 321.78 45.8699C321.78 58.462 331.988 68.67 344.58 68.67H445.3C457.892 68.67 468.1 58.462 468.1 45.8699C468.1 33.2779 457.892 23.0699 445.3 23.0699Z"
-      />
-      <path
-        fill="#1d1d1d"
-        stroke="#B2B2B2"
-        strokeWidth="0.75"
-        strokeMiterlimit="10"
-        d="M268.69 23.0699H129.74C117.148 23.0699 106.94 33.2779 106.94 45.8699C106.94 58.462 117.148 68.67 129.74 68.67H268.69C281.282 68.67 291.49 58.462 291.49 45.8699C291.49 33.2779 281.282 23.0699 268.69 23.0699Z"
-      />
-    </svg>
-  );
-}
-
 /** Traced directly from the user's dedicated menu.svg (the ghost-holding-a-die mark). */
 function DiceIcon() {
   return (
@@ -130,20 +97,21 @@ export function TopBar({
       </div>
 
       <div className="topbar-capsule">
-        <CapsuleBg />
         <button className="capsule-icon-btn" onClick={onShuffle} title="Shuffle 3 random effects">
           <DiceIcon />
         </button>
-        {!liveSession && (
-          <button className="capsule-btn" onClick={onStartLiveSession}>
-            + Live Session
-          </button>
-        )}
-        {!liveSession && (
-          <button className={`capsule-btn ${media ? "status" : ""}`} onClick={() => inputRef.current?.click()}>
-            {media ? "On progress" : "+ Add Media"}
-          </button>
-        )}
+        <div className="capsule-btn-row">
+          {!liveSession && (
+            <button className="capsule-btn" onClick={onStartLiveSession}>
+              + Live Session
+            </button>
+          )}
+          {!liveSession && (
+            <button className={`capsule-btn ${media ? "status" : ""}`} onClick={() => inputRef.current?.click()}>
+              {media ? "On progress" : "+ Add Media"}
+            </button>
+          )}
+        </div>
       </div>
       <input
         ref={inputRef}
