@@ -63,7 +63,10 @@ export default function App() {
     const grain = makeEntry("filmGrain");
     grain.values = { ...grain.values, amount: 10 };
     grain.audioLinks = { amount: "level" };
-    return [dither, grain];
+    const ascii = makeEntry("asciiArt");
+    ascii.values = { ...ascii.values, cellSize: 10, charset: "blocks", monochrome: true };
+    ascii.audioLinks = { cellSize: "bass" };
+    return [dither, grain, ascii];
   });
   const [activeEntryId, setActiveEntryId] = useState<string | null>(() => chain[0]?.id ?? null);
   const [browserTarget, setBrowserTarget] = useState<BrowserTarget | null>(null);
