@@ -92,17 +92,19 @@
 /* The dice/Live-Session/Add-Media group reads as one continuous dark capsule —
    a single rounded pill background with borderless segment buttons inside,
    rather than several separate bordered chips. */
-/* Real flexbox, not a stretched vector background — each pill sizes to its own
-   content, so nothing distorts when button text/state changes. Numbers taken
-   from the user's Figma Auto Layout: outer padding 10, outer gap 10 (icon to
-   button group), inner gap 30 (between the two buttons), icon 64px circle,
-   button row height 45.6px. */
+/* One continuous shared background (not per-segment fills) so the icon and both
+   buttons read as one fused bar with no visible seam — matching the reference
+   exactly — while staying real flexbox (no vector to stretch/distort). Each
+   button gets only a thin inset stroke to mark its own hit area, same as the
+   reference's subtle divider treatment. Sizing from the user's Figma Auto
+   Layout: outer padding 10, icon 64px circle, button row height 45.6px. */
 .topbar-capsule {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  background: #1d1d1d;
+  border-radius: 999px;
   padding: 10px;
-  gap: 10px;
 }
 
 .capsule-icon-btn {
@@ -112,27 +114,26 @@
   flex-shrink: 0;
   width: 64px;
   height: 64px;
-  background: #1d1d1d;
+  background: none;
   border: none;
   border-radius: 50%;
   color: #fff;
 }
 
 .capsule-icon-btn:hover {
-  background: #2c2c2c;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .capsule-btn-row {
   display: flex;
   align-items: center;
-  gap: 30px;
 }
 
 .capsule-btn {
   flex-shrink: 0;
   white-space: nowrap;
   height: 45.6px;
-  background: #1d1d1d;
+  background: none;
   border: 1px solid #4a4a4a;
   border-radius: 999px;
   color: #fff;
@@ -143,7 +144,7 @@
 }
 
 .capsule-btn:hover {
-  background: #2c2c2c;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .capsule-btn.status {
