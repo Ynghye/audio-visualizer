@@ -93,13 +93,29 @@
    a single rounded pill background with borderless segment buttons inside,
    rather than several separate bordered chips. */
 .topbar-capsule {
+  position: relative;
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  background: #1d1d1d;
   border-radius: 999px;
   padding: 6px;
   gap: 2px;
+}
+
+/* Non-uniform stretch so the vector caps/dividers reach whatever width the real
+   button content needs — see the CapsuleBg component for the tradeoff this implies. */
+.capsule-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.topbar-capsule > button {
+  position: relative;
+  z-index: 1;
 }
 
 .capsule-icon-btn {
